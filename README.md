@@ -7,9 +7,9 @@ Autorzy: Bohdan Krasovskyi, Bohdan Kliukovskyi.
 Projekt dotyczy relacyjnej bazy danych "Lumina", która służy do zarządzania procesami w placówce oświatowej. System został zaprojektowany z myślą o pełnej kontroli nad danymi uczniów, nauczycieli oraz historią oceniania.
 
 Główne funkcjonalności:
-Ewidencja osób:** Przechowywanie danych osobowych z unikalną identyfikacją PESEL.
-Zarządzanie strukturą:** Obsługa klas, przedmiotów oraz elastyczne przypisywanie nauczycieli do zajęć.
-Historia ocen:** Możliwość korekty ocen z automatycznym śledzeniem daty modyfikacji.
+Ewidencja osób: Przechowywanie danych osobowych z unikalną identyfikacją PESEL.
+Zarządzanie strukturą: Obsługa klas, przedmiotów oraz elastyczne przypisywanie nauczycieli do zajęć.
+Historia ocen: Możliwość korekty ocen z automatycznym śledzeniem daty modyfikacji.
 
 
 2. Wymagania i funkcje systemu
