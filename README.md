@@ -1,7 +1,7 @@
 Temat: System Zarządzania Szkołą Lumina
-Autorzy: (Wpisz swoje Imię i Nazwisko)
+Autorzy: Bohdan Kliukovskyi, Bohdan Krasovskyi.
 
-Zakres i krótki opis systemu
+**Zakres i krótki opis systemu**
 
 Lumina to zintegrowany system bazy danych, stworzony z myślą o kompleksowej cyfryzacji administracji szkolnej. Projekt koncentruje się na dwóch głównych filarach: precyzyjnym zarządzaniu kapitałem ludzkim oraz optymalizacji infrastruktury edukacyjnej.
 
