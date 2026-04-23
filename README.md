@@ -1,30 +1,39 @@
-Temat: System Zarządzania Szkołą Lumina
-Autorzy: Bohdan Kliukovskyi, Bohdan Krasovskyi.
+# Temat: System Zarządzania Szkołą "Lumina"
 
-**Zakres i krótki opis systemu**
+**Autorzy:** (Bohdan Kliukovskyi, Bohdan Krasovskyi)  
+**Data projektu:** 2026-04-23  
+**Status:** Zadanie 1 i 2 (Projektowanie i Wymagania)
 
-Lumina to zintegrowany system bazy danych, stworzony z myślą o kompleksowej cyfryzacji administracji szkolnej. Projekt koncentruje się na dwóch głównych filarach: precyzyjnym zarządzaniu kapitałem ludzkim oraz optymalizacji infrastruktury edukacyjnej.
+---
 
-W ramach ewidencji osób, system gromadzi nie tylko podstawowe dane, ale również szczegółowe profile zawodowe nauczycieli, w tym ich imiona, nazwiska, stopnie naukowe oraz konkretne specjalizacje przedmiotowe. Pozwala to na inteligentne przypisywanie kadry do odpowiednich kursów. W obszarze logistyki, Lumina zarządza zasobami szkoły, łącząc nazwy przedmiotów z konkretnymi salami lekcyjnymi oraz precyzyjnymi ramami czasowymi w tygodniowym harmonogramie. Dodatkowo, system oferuje zaawansowany moduł oceniania, który gwarantuje pełną przejrzystość procesu dydaktycznego poprzez monitorowanie historii każdej wprowadzonej poprawki.
+## 1. Zakres i krótki opis systemu
 
-Wymagania i funkcje systemu
+**Lumina** to zintegrowany system bazy danych zaprojektowany do kompleksowej obsługi procesów administracyjnych i dydaktycznych w nowoczesnej placówce oświatowej. System ma na celu zastąpienie rozproszonych arkuszy danych jedną, spójną strukturą relacyjną, która gwarantuje bezpieczeństwo i szybkość dostępu do informacji.
 
-Główne wymagania techniczne i funkcjonalne systemu Lumina obejmują:
+### Kluczowe obszary funkcjonalne:
+* **Zarządzanie kadrą pedagogiczną:** System przechowuje szczegółowe profile nauczycieli, w tym **imiona, nazwiska, stopnie naukowe** oraz specjalizacje przedmiotowe, co pozwala na precyzyjne dopasowanie kadry do planu zajęć.
+* **Ewidencja uczniów:** Centralna baza danych z unikalną identyfikacją osób, umożliwiająca śledzenie przynależności do klas oraz historii nauczania.
+* **Logistyka i infrastruktura:** Moduł zarządzania zasobami, który łączy **nazwy przedmiotów** z konkretnymi numerami sal lekcyjnych oraz precyzyjnymi godzinami w harmonogramie.
+* **Transparentność oceniania:** Zaawansowana ewidencja wyników nauczania, która kładzie nacisk na historię zmian — każda korekta oceny jest monitorowana wraz z datą modyfikacji.
 
-Integralność danych osobowych: Każdy rekord w bazie musi być zweryfikowany pod kątem unikalności numeru PESEL. Dotyczy to zarówno uczniów, jak i pracowników, co eliminuje błędy w dokumentacji i dublowanie kont.
+---
 
-Zarządzanie dydaktyką: Każdy przedmiot (np. Informatyka, Język Angielski Poziom B2) musi być powiązany z unikalnym kodem oraz przypisany do konkretnego nauczyciela prowadzącego. System dopuszcza relację, w której jeden przedmiot jest wykładany przez wielu pedagogów w różnych grupach.
+## 2. Wymagania i funkcje systemu
 
-Harmonogram i kolizje: Rozkład zajęć musi być tworzony w oparciu o sztywne ramy godzinowe (godzina rozpoczęcia i zakończenia). Algorytm bazy danych musi uniemożliwiać rezerwację tej samej sali lekcyjnej dla dwóch różnych grup w tym samym czasie.
+System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotyczące spójności i wygody użytkowania.
 
-Transparentność ocen: Każda zmiana oceny musi automatycznie generować wpis do logów, zawierający datę modyfikacji oraz dane osoby (imię i nazwisko nauczyciela), która dokonała korekty.
+### 🛠 Wymagania techniczne i integralność
+1.  **Unikalność tożsamości:** Każdy rekord w tabelach uczniów i nauczycieli musi posiadać unikalny numer **PESEL**. System automatycznie blokuje próby wprowadzenia duplikatów.
+2.  **Relacje przedmiotowe:** System obsługuje relacje wiele-do-wielu, co pozwala na przypisanie wielu nauczycieli do jednej **nazwy przedmiotu** (np. Język angielski prowadzony przez różnych lektorów w różnych grupach).
+3.  **Bezpieczeństwo harmonogramu:** Baza danych posiada mechanizmy kontroli kolizji, uniemożliwiające przypisanie dwóch różnych lekcji do tej samej sali w tym samym czasie.
+4.  **Audyt ocen:** Każda ocena w systemie przechowuje informację o dacie ostatniej zmiany, co pozwala na weryfikację ewentualnych błędów lub korekt.
 
-Historyjki użytkownika (User Stories):
+### 👤 Historyjki użytkownika (User Stories)
 
-Jako uczeń, chcę mieć dostęp do aktualnego planu zajęć, aby w każdej chwili sprawdzić dokładną nazwę przedmiotu, nazwisko prowadzącego oraz numer sali, w której odbywa się lekcja.
-
-Jako nauczyciel, chcę sprawnie zarządzać listami uczniów w moich grupach, mając możliwość wystawiania ocen oraz edytowania błędnych wpisów z automatycznym zachowaniem historii zmian.
-
-Jako dyrektor, chcę kontrolować obciążenie sal lekcyjnych oraz zarządzać przypisaniami nauczycieli do nowo tworzonych przedmiotów w ramach rocznego arkusza organizacyjnego.
-
-Jako administrator, chcę czuwać nad poprawnością wprowadzanych danych, blokując rejestrację błędnych numerów PESEL oraz definiując nowe kategorie przedmiotów w strukturze systemu Lumina.
+| Rola | Potrzeba użytkownika |
+| :--- | :--- |
+| **Uczeń** | Chcę sprawdzić mój **plan zajęć**, aby widzieć dokładną godzinę, nazwę przedmiotu oraz nazwisko nauczyciela prowadzącego lekcję w danej sali. |
+| **Nauczyciel** | Chcę zarządzać listą uczniów w moich grupach oraz mieć możliwość poprawy oceny z automatycznym zapisem daty modyfikacji. |
+| **Dyrektor** | Chcę mieć możliwość przypisania imienia i nazwiska konkretnego nauczyciela do przedmiotów w ramach nowego arkusza organizacyjnego. |
+| **Wychowawca** | Chcę wygenerować raport zawierający imiona i nazwiska uczniów mojej klasy wraz z ich średnią ocen ze wszystkich przedmiotów. |
+| **Administrator** | Chcę definiować nowe nazwy przedmiotów (np. Fizyka Kwantowa) i kontrolować poprawność numerów PESEL podczas dodawania nowych osób do bazy Lumina. |
