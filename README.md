@@ -1,26 +1,30 @@
-Temat: System Zarządzania Szkołą "Lumina"
+Temat: System Zarządzania Szkołą Lumina
+Autorzy: (Wpisz swoje Imię i Nazwisko)
 
-Autorzy: Bohdan Krasovskyi, Bohdan Kliukovskyi.
+Zakres i krótki opis systemu
 
+Lumina to zintegrowany system bazy danych, stworzony z myślą o kompleksowej cyfryzacji administracji szkolnej. Projekt koncentruje się na dwóch głównych filarach: precyzyjnym zarządzaniu kapitałem ludzkim oraz optymalizacji infrastruktury edukacyjnej.
 
-1. Zakres i krótki opis systemu
-Projekt dotyczy relacyjnej bazy danych "Lumina", która służy do zarządzania procesami w placówce oświatowej. System został zaprojektowany z myślą o pełnej kontroli nad danymi uczniów, nauczycieli oraz historią oceniania.
+W ramach ewidencji osób, system gromadzi nie tylko podstawowe dane, ale również szczegółowe profile zawodowe nauczycieli, w tym ich imiona, nazwiska, stopnie naukowe oraz konkretne specjalizacje przedmiotowe. Pozwala to na inteligentne przypisywanie kadry do odpowiednich kursów. W obszarze logistyki, Lumina zarządza zasobami szkoły, łącząc nazwy przedmiotów z konkretnymi salami lekcyjnymi oraz precyzyjnymi ramami czasowymi w tygodniowym harmonogramie. Dodatkowo, system oferuje zaawansowany moduł oceniania, który gwarantuje pełną przejrzystość procesu dydaktycznego poprzez monitorowanie historii każdej wprowadzonej poprawki.
 
-Główne funkcjonalności:
-Ewidencja osób: Przechowywanie danych osobowych z unikalną identyfikacją PESEL.
-Zarządzanie strukturą: Obsługa klas, przedmiotów oraz elastyczne przypisywanie nauczycieli do zajęć.
-Historia ocen: Możliwość korekty ocen z automatycznym śledzeniem daty modyfikacji.
+Wymagania i funkcje systemu
 
+Główne wymagania techniczne i funkcjonalne systemu Lumina obejmują:
 
-2. Wymagania i funkcje systemu
+Integralność danych osobowych: Każdy rekord w bazie musi być zweryfikowany pod kątem unikalności numeru PESEL. Dotyczy to zarówno uczniów, jak i pracowników, co eliminuje błędy w dokumentacji i dublowanie kont.
 
-Wymagania systemowe:
-Integralność danych: Każdy rekord ucznia musi posiadać unikalny numer PESEL (brak możliwości dublowania).
-Elastyczność dydaktyczna: Jeden przedmiot może być prowadzony przez wielu nauczycieli (np. w różnych grupach).
-Edycja ocen System musi pozwalać nauczycielom na poprawę ocen, rejestrując przy tym czas zmiany.
+Zarządzanie dydaktyką: Każdy przedmiot (np. Informatyka, Język Angielski Poziom B2) musi być powiązany z unikalnym kodem oraz przypisany do konkretnego nauczyciela prowadzącego. System dopuszcza relację, w której jeden przedmiot jest wykładany przez wielu pedagogów w różnych grupach.
+
+Harmonogram i kolizje: Rozkład zajęć musi być tworzony w oparciu o sztywne ramy godzinowe (godzina rozpoczęcia i zakończenia). Algorytm bazy danych musi uniemożliwiać rezerwację tej samej sali lekcyjnej dla dwóch różnych grup w tym samym czasie.
+
+Transparentność ocen: Każda zmiana oceny musi automatycznie generować wpis do logów, zawierający datę modyfikacji oraz dane osoby (imię i nazwisko nauczyciela), która dokonała korekty.
 
 Historyjki użytkownika (User Stories):
-Jako administrator, chcę mieć pewność, że w bazie nie pojawią się dwa te same numery PESEL.
-Jako nauczyciel, chcę móc edytować ocenę w przypadku pomyłki, aby w systemie widniała aktualna data korekty.
-Jako dyrektor, chcę przypisać kilku nauczycieli do tego samego przedmiotu (np. Język angielski) dla różnych grup uczniów.
-Jako wychowawca, chcę wygenerować listę wszystkich uczniów mojej klasy wraz z ich danymi.
+
+Jako uczeń, chcę mieć dostęp do aktualnego planu zajęć, aby w każdej chwili sprawdzić dokładną nazwę przedmiotu, nazwisko prowadzącego oraz numer sali, w której odbywa się lekcja.
+
+Jako nauczyciel, chcę sprawnie zarządzać listami uczniów w moich grupach, mając możliwość wystawiania ocen oraz edytowania błędnych wpisów z automatycznym zachowaniem historii zmian.
+
+Jako dyrektor, chcę kontrolować obciążenie sal lekcyjnych oraz zarządzać przypisaniami nauczycieli do nowo tworzonych przedmiotów w ramach rocznego arkusza organizacyjnego.
+
+Jako administrator, chcę czuwać nad poprawnością wprowadzanych danych, blokując rejestrację błędnych numerów PESEL oraz definiując nowe kategorie przedmiotów w strukturze systemu Lumina.
