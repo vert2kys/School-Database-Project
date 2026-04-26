@@ -54,46 +54,46 @@ erDiagram
     Teachers ||--o{ Schedules : "conducts"
 
     Classes {
-        int class_id PK
-        varchar class_name
+        int classId PK
+        varchar className
     }
     Students {
-        int student_id PK
-        varchar first_name
-        varchar last_name
+        int studentId PK
+        varchar firstName
+        varchar lastName
         char(11) pesel
-        int class_id FK
+        int classId FK
     }
     Teachers {
-        int teacher_id PK
-        varchar first_name
-        varchar last_name
+        int teacherId PK
+        varchar firstName
+        varchar lastName
         char(11) pesel
         varchar specialization
     }
     Subjects {
-        int subject_id PK
-        varchar subject_name
+        int subjectId PK
+        varchar subjectName
     }
     Teacher_Subjects {
-        int assignment_id PK
-        int teacher_id FK
-        int subject_id FK
+        int assignmentId PK
+        int teacherId FK
+        int subjectId FK
     }
     Grades {
-        int grade_id PK
-        decimal grade_value
-        timestamp last_modified
-        int student_id FK
-        int subject_id FK
-        int teacher_id FK
+        int gradeId PK
+        decimal gradeValue
+        timestamp lastModified
+        int studentId FK
+        int subjectId FK
+        int teacherId FK
     }
     Schedules {
-        int lesson_id PK
-        varchar room_number
-        datetime start_time
-        datetime end_time
-        int class_id FK
-        int subject_id FK
-        int teacher_id FK
+        int lessonId PK
+        varchar roomNumber
+        datetime startTime
+        datetime endTime
+        int classId FK
+        int subjectId FK
+        int teacherId FK
     }
