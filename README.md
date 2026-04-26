@@ -37,3 +37,68 @@ System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotycz�
 | **Dyrektor** | Chcę mieć możliwość przypisania imienia i nazwiska konkretnego nauczyciela do przedmiotów w ramach nowego arkusza organizacyjnego. |
 | **Wychowawca** | Chcę wygenerować raport zawierający imiona i nazwiska uczniów mojej klasy wraz z ich średnią ocen ze wszystkich przedmiotów. |
 | **Administrator** | Chcę definiować nowe nazwy przedmiotów (np. Fizyka Kwantowa) i kontrolować poprawność numerów PESEL podczas dodawania nowych osób do bazy Lumina. |
+
+
+erDiagram
+    Classes ||--o{ Students : "contains"
+    Students ||--o{ Grades : "receive"
+    Teachers ||--o{ Grades : "assign"
+    Subjects ||--o{ Grades : "relate_to"
+    
+    Teachers ||--o{ Teacher_Subjects : "teaches"
+    Subjects ||--o{ Teacher_Subjects : "is_taught_by"
+    
+    Classes ||--o{ Schedules : "attends"
+    Subjects ||--o{ Schedules : "includes"
+    Teachers ||--o{ Schedules : "conducts"
+
+    Classes {
+        int class_id PK
+        varchar class_name
+    }
+
+    Students {
+        int student_id PK
+        varchar first_name
+        varchar last_name
+        char(11) pesel UK
+        int class_id FK
+    }
+
+    Teachers {
+        int teacher_id PK
+        varchar first_name
+        varchar last_name
+        char(11) pesel UK
+        varchar specialization
+    }
+
+    Subjects {
+        int subject_id PK
+        varchar subject_name
+    }
+
+    Teacher_Subjects {
+        int assignment_id PK
+        int teacher_id FK
+        int subject_id FK
+    }
+
+    Grades {
+        int grade_id PK
+        decimal grade_value
+        timestamp last_modified
+        int student_id FK
+        int subject_id FK
+        int teacher_id FK
+    }
+
+    Schedules {
+        int lesson_id PK
+        varchar room_number
+        datetime start_time
+        datetime end_time
+        int class_id FK
+        int subject_id FK
+        int teacher_id FK
+    }
