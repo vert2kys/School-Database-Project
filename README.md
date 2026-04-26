@@ -40,7 +40,7 @@ System Lumina zostaÅ‚ zaprojektowany w oparciu o rygorystyczne wymagania dotyczÄ
 
 
 erDiagram
-
+    ```mermaid
     Classes ||--o{ Students : "contains"
     Students ||--o{ Grades : "receive"
     Teachers ||--o{ Grades : "assign"
