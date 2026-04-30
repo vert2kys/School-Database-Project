@@ -52,6 +52,8 @@ erDiagram
     Classes ||--o{ Schedules : "attends"
     Subjects ||--o{ Schedules : "includes"
     Teachers ||--o{ Schedules : "conducts"
+    Schedules ||--o{ Grades : "depends"
+    
 
     Classes {
         int classId PK
