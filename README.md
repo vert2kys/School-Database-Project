@@ -92,7 +92,7 @@ erDiagram
 
     Grades {
         int gradeId PK
-        decimal(3,2) gradeValue "Напр. 5.00"
+        decimal gradeValue
         int weight
         int studentId FK
         int lessonId FK 
