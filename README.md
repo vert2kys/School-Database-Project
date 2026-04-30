@@ -43,39 +43,24 @@ System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotycz�
 
 ```mermaid
 
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#e3f2fd',
-    'primaryTextColor': '#0d47a1',
-    'primaryBorderColor': '#1976d2',
-    'lineColor': '#546e7a',
-    'secondaryColor': '#f5f5f5',
-    'tertiaryColor': '#ffffff',
-    'attributeBackgroundColor': '#ffffff',
-    'attributeFontSize': '10px',
-    'entityPadding': '15'
-  }
-}}%%
 erDiagram
-    %% --- Core Relationships ---
-    Classes ||--o{ Students : "enrolled"
-    Teachers ||--o{ Teacher_Subjects : "specializes"
-    Subjects ||--o{ Teacher_Subjects : "assigned_to"
-    
-    %% --- Educational Process ---
-    Classes ||--o{ Schedules : "follows"
-    Subjects ||--o{ Schedules : "scheduled_as"
-    Teachers ||--o{ Schedules : "teaches"
-    Rooms ||--o{ Schedules : "hosts"
+    direction TB
 
-    %% --- Results & Tracking ---
-    Students ||--o{ Grades : "earns"
-    Subjects ||--o{ Grades : "graded_in"
-    Teachers ||--o{ Grades : "evaluates"
+    Classes ||--o{ Students : "contains"
+    Classes ||--o{ Schedules : "attends"
     
-    Students ||--o{ Attendance : "marked"
+    Teachers ||--o{ Teacher_Subjects : "specializes_in"
+    Subjects ||--o{ Teacher_Subjects : "is_assigned_to"
+    
+    Rooms ||--o{ Schedules : "hosts"
+    Subjects ||--o{ Schedules : "taught_as"
+    Teachers ||--o{ Schedules : "conducts"
+    
+    Schedules ||--o{ Grades : "resulted_in"
+    Students ||--o{ Grades : "earns"
+    
     Schedules ||--o{ Attendance : "tracks"
+    Students ||--o{ Attendance : "attends"
 
     Classes {
         int classId PK
@@ -87,7 +72,7 @@ erDiagram
         int studentId PK
         varchar firstName
         varchar lastName
-        char(11) pesel UK
+        varchar(11) pesel UK "Unique"
         varchar email
         int classId FK
     }
@@ -96,7 +81,6 @@ erDiagram
         int teacherId PK
         varchar firstName
         varchar lastName
-        char(11) pesel UK
         varchar email
         varchar phoneNumber
     }
@@ -104,43 +88,24 @@ erDiagram
     Subjects {
         int subjectId PK
         varchar subjectName
-        varchar description
-    }
-
-    Rooms {
-        int roomId PK
-        varchar roomNumber
-        int capacity
-        varchar roomType
-    }
-
-    Teacher_Subjects {
-        int assignmentId PK
-        int teacherId FK
-        int subjectId FK
     }
 
     Grades {
         int gradeId PK
-        decimal gradeValue
+        decimal(3,2) gradeValue "Напр. 5.00"
         int weight
-        timestamp lastModified
         int studentId FK
-        int subjectId FK
+        int lessonId FK 
     }
 
     Schedules {
         int lessonId PK
-        datetime startTime
-        datetime endTime
         int roomId FK
         int classId FK
         int subjectId FK
+        int teacherId FK
+        datetime startTime
+        datetime endTime
     }
 
-    Attendance {
-        int attendanceId PK
-        int studentId FK
-        int lessonId FK
-        varchar status
-    }
+ 
