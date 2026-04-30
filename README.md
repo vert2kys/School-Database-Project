@@ -42,7 +42,6 @@ System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotycz�
 ```mermaid
 
 erDiagram
-
     Classes ||--o{ Students : "contains"
     Students ||--o{ Grades : "receive"
     Teachers ||--o{ Grades : "assign"
@@ -52,50 +51,80 @@ erDiagram
     Classes ||--o{ Schedules : "attends"
     Subjects ||--o{ Schedules : "includes"
     Teachers ||--o{ Schedules : "conducts"
-    Schedules ||--o{ Grades : "depends"
     
+    %% Новые связи без изменения старых
+    Rooms ||--o{ Schedules : "hosts"
+    Schedules ||--o{ Attendance : "records"
+    Students ||--o{ Attendance : "marked_in"
 
     Classes {
         int classId PK
         varchar className
+        varchar classLevel
     }
+
     Students {
         int studentId PK
         varchar firstName
         varchar lastName
         char(11) pesel
+        varchar email
         int classId FK
     }
+
     Teachers {
         int teacherId PK
         varchar firstName
         varchar lastName
         char(11) pesel
+        varchar email
+        varchar phoneNumber
         varchar specialization
     }
+
     Subjects {
         int subjectId PK
         varchar subjectName
+        varchar description
     }
+
+    Rooms {
+        int roomId PK
+        varchar roomNumber
+        int capacity
+        varchar roomType
+    }
+
     Teacher_Subjects {
         int assignmentId PK
         int teacherId FK
         int subjectId FK
     }
+
     Grades {
         int gradeId PK
         decimal gradeValue
+        int weight
+        varchar comment
         timestamp lastModified
         int studentId FK
         int subjectId FK
         int teacherId FK
     }
+
     Schedules {
         int lessonId PK
-        varchar roomNumber
+        int roomId FK
         datetime startTime
         datetime endTime
         int classId FK
         int subjectId FK
         int teacherId FK
+    }
+
+    Attendance {
+        int attendanceId PK
+        int studentId FK
+        int lessonId FK
+        varchar status
     }
