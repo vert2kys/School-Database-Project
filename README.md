@@ -51,6 +51,8 @@ erDiagram
     Classes ||--o{ Schedules : "attends"
     Subjects ||--o{ Schedules : "includes"
     Teachers ||--o{ Schedules : "conducts"
+    Schedules||--o{ Grades : "depends"
+
     
     %% Новые связи без изменения старых
     Rooms ||--o{ Schedules : "hosts"
