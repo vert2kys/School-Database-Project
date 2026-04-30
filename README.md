@@ -38,6 +38,8 @@ System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotycz�
 | **Wychowawca** | Chcę wygenerować raport zawierający imiona i nazwiska uczniów mojej klasy wraz z ich średnią ocen ze wszystkich przedmiotów. |
 | **Administrator** | Chcę definiować nowe nazwy przedmiotów (np. Fizyka Kwantowa) i kontrolować poprawność numerów PESEL podczas dodawania nowych osób do bazy Lumina. |
 
+**SCHEMA (DIAGRAM) DO BAZY DANNYCH**
+
 
 ```mermaid
 
