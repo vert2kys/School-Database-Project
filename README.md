@@ -43,23 +43,39 @@ System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotycz�
 
 ```mermaid
 
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#e3f2fd',
+    'primaryTextColor': '#0d47a1',
+    'primaryBorderColor': '#1976d2',
+    'lineColor': '#546e7a',
+    'secondaryColor': '#f5f5f5',
+    'tertiaryColor': '#ffffff',
+    'attributeBackgroundColor': '#ffffff',
+    'attributeFontSize': '10px',
+    'entityPadding': '15'
+  }
+}}%%
 erDiagram
-    Classes ||--o{ Students : "contains"
-    Students ||--o{ Grades : "receive"
-    Teachers ||--o{ Grades : "assign"
-    Subjects ||--o{ Grades : "relate_to"
-    Teachers ||--o{ Teacher_Subjects : "teaches"
-    Subjects ||--o{ Teacher_Subjects : "is_taught_by"
-    Classes ||--o{ Schedules : "attends"
-    Subjects ||--o{ Schedules : "includes"
-    Teachers ||--o{ Schedules : "conducts"
-    Schedules||--o{ Grades : "depends"
-
+    %% --- Core Relationships ---
+    Classes ||--o{ Students : "enrolled"
+    Teachers ||--o{ Teacher_Subjects : "specializes"
+    Subjects ||--o{ Teacher_Subjects : "assigned_to"
     
-    %% Новые связи без изменения старых
+    %% --- Educational Process ---
+    Classes ||--o{ Schedules : "follows"
+    Subjects ||--o{ Schedules : "scheduled_as"
+    Teachers ||--o{ Schedules : "teaches"
     Rooms ||--o{ Schedules : "hosts"
-    Schedules ||--o{ Attendance : "records"
-    Students ||--o{ Attendance : "marked_in"
+
+    %% --- Results & Tracking ---
+    Students ||--o{ Grades : "earns"
+    Subjects ||--o{ Grades : "graded_in"
+    Teachers ||--o{ Grades : "evaluates"
+    
+    Students ||--o{ Attendance : "marked"
+    Schedules ||--o{ Attendance : "tracks"
 
     Classes {
         int classId PK
@@ -71,7 +87,7 @@ erDiagram
         int studentId PK
         varchar firstName
         varchar lastName
-        char(11) pesel
+        char(11) pesel UK
         varchar email
         int classId FK
     }
@@ -80,10 +96,9 @@ erDiagram
         int teacherId PK
         varchar firstName
         varchar lastName
-        char(11) pesel
+        char(11) pesel UK
         varchar email
         varchar phoneNumber
-        varchar specialization
     }
 
     Subjects {
@@ -109,21 +124,18 @@ erDiagram
         int gradeId PK
         decimal gradeValue
         int weight
-        varchar comment
         timestamp lastModified
         int studentId FK
         int subjectId FK
-        int teacherId FK
     }
 
     Schedules {
         int lessonId PK
-        int roomId FK
         datetime startTime
         datetime endTime
+        int roomId FK
         int classId FK
         int subjectId FK
-        int teacherId FK
     }
 
     Attendance {
