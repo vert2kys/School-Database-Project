@@ -1,45 +1,74 @@
-# Temat: System Zarządzania Szkołą "Lumina"
+# 🏫 System Zarządzania Szkołą "Lumina"
 
-**Autorzy:** (Bohdan Kliukovskyi, Bohdan Krasovskyi)  
+**Autorzy:** Bohdan Kliukovskyi, Bohdan Krasovskyi  
 **Data projektu:** 2026-04-23  
-**Status:** Zadanie 1 i 2 (Projektowanie i Wymagania)
+**Status:** Dokumentacja Techniczna (Zadanie 1 i 2)
 
 ---
 
-## 1. Zakres i krótki opis systemu
-
-**Lumina** to zintegrowany system bazy danych zaprojektowany do kompleksowej obsługi procesów administracyjnych i dydaktycznych w nowoczesnej placówce oświatowej. System ma na celu zastąpienie rozproszonych arkuszy danych jedną, spójną strukturą relacyjną, która gwarantuje bezpieczeństwo i szybkość dostępu do informacji.
-
-### Kluczowe obszary funkcjonalne:
-* **Zarządzanie kadrą pedagogiczną:** System przechowuje szczegółowe profile nauczycieli, w tym **imiona, nazwiska, stopnie naukowe** oraz specjalizacje przedmiotowe, co pozwala na precyzyjne dopasowanie kadry do planu zajęć.
-* **Ewidencja uczniów:** Centralna baza danych z unikalną identyfikacją osób, umożliwiająca śledzenie przynależności do klas oraz historii nauczania.
-* **Logistyka i infrastruktura:** Moduł zarządzania zasobami, który łączy **nazwy przedmiotów** z konkretnymi numerami sal lekcyjnych oraz precyzyjnymi godzinami w harmonogramie.
-* **Transparentność oceniania:** Zaawansowana ewidencja wyników nauczania, która kładzie nacisk na historię zmian — każda korekta oceny jest monitorowana wraz z datą modyfikacji.
+## 1. Opis Systemu
+**Lumina** to zintegrowany system bazy danych służący do automatyzacji procesów administracyjnych i dydaktycznych. System opiera się na relacyjnym modelu danych, który łączy ewidencję osób (uczniów i nauczycieli) z logistyką zajęć (plan lekcji, sale) oraz wynikami nauczania.
 
 ---
 
-## 2. Wymagania i funkcje systemu
+## 2. Architektura Danych (Struktura Tabel)
 
-System Lumina został zaprojektowany w oparciu o rygorystyczne wymagania dotyczące spójności i wygody użytkowania.
+Na podstawie diagramu ERD, system składa się z następujących kluczowych komponentów:
 
-### 🛠 Wymagania techniczne i integralność
-1.  **Unikalność tożsamości:** Każdy rekord w tabelach uczniów i nauczycieli musi posiadać unikalny numer **PESEL**. System automatycznie blokuje próby wprowadzenia duplikatów.
-2.  **Relacje przedmiotowe:** System obsługuje relacje wiele-do-wielu, co pozwala na przypisanie wielu nauczycieli do jednej **nazwy przedmiotu** (np. Język angielski prowadzony przez różnych lektorów w różnych grupach).
-3.  **Bezpieczeństwo harmonogramu:** Baza danych posiada mechanizmy kontroli kolizji, uniemożliwiające przypisanie dwóch różnych lekcji do tej samej sali w tym samym czasie.
-4.  **Audyt ocen:** Każda ocena w systemie przechowuje informację o dacie ostatniej zmiany, co pozwala na weryfikację ewentualnych błędów lub korekt.
+### 👤 Zarządzanie Osobami
+* **Students**: Przechowuje dane uczniów. Kluczowym elementem jest unikalny numer **PESEL** oraz przypisanie do konkretnej klasy (`classId`).
+* **Teachers**: Ewidencja kadry pedagogicznej (imię, nazwisko, email, numer telefonu).
+* **Classes**: Definiuje grupy uczniów (nazwa klasy i poziom, np. "1A", "Liceum").
 
-### 👤 Historyjki użytkownika (User Stories)
+### 📚 Program Nauczania i Logistyka
+* **Subjects**: Katalog przedmiotów nauczanych w szkole.
+* **Teacher_Subjects**: Tabela łącząca, realizująca relację wiele-do-wielu (jeden nauczyciel może uczyć wielu przedmiotów, a jeden przedmiot może być prowadzony przez wielu nauczycieli).
+* **Rooms**: Wykaz sal lekcyjnych, w których odbywają się zajęcia.
 
-| Rola | Potrzeba użytkownika |
-| :--- | :--- |
-| **Uczeń** | Chcę sprawdzić mój **plan zajęć**, aby widzieć dokładną godzinę, nazwę przedmiotu oraz nazwisko nauczyciela prowadzącego lekcję w danej sali. |
-| **Nauczyciel** | Chcę zarządzać listą uczniów w moich grupach oraz mieć możliwość poprawy oceny z automatycznym zapisem daty modyfikacji. |
-| **Dyrektor** | Chcę mieć możliwość przypisania imienia i nazwiska konkretnego nauczyciela do przedmiotów w ramach nowego arkusza organizacyjnego. |
-| **Wychowawca** | Chcę wygenerować raport zawierający imiona i nazwiska uczniów mojej klasy wraz z ich średnią ocen ze wszystkich przedmiotów. |
-| **Administrator** | Chcę definiować nowe nazwy przedmiotów (np. Fizyka Kwantowa) i kontrolować poprawność numerów PESEL podczas dodawania nowych osób do bazy Lumina. |
+### 📅 Proces Dydaktyczny
+* **Schedules**: Centralna tabela systemu. Łączy nauczyciela, klasę, przedmiot i salę w konkretnym czasie (`startTime`, `endTime`).
+* **Attendance**: Moduł śledzenia obecności uczniów na konkretnych lekcjach.
+* **Grades**: Ewidencja ocen uczniów. Każda ocena jest powiązana z konkretnym uczniem oraz jednostką lekcyjną (`lessonId`), co pozwala określić jej wagę i wartość.
 
-**SCHEMA (DIAGRAM) DO BAZY DANNYCH**
+---
 
+## 3. Wymagania i Integralność Systemu
+
+System implementuje szereg reguł biznesowych zapewniających spójność danych:
+
+1.  **Integralność Tożsamości**: Tabela `Students` wymusza unikalność pola `pesel` (Unique Key), uniemożliwiając dublowanie rekordów.
+2.  **Spójność Relacyjna**: Wykorzystanie kluczy obcych (FK) gwarantuje, że np. ocena nie może zostać wystawiona nieistniejącemu uczniowi, a lekcja nie może odbyć się bez przypisanego przedmiotu.
+3.  **Logistyka Zajęć**: Tabela `Schedules` pozwala na precyzyjne zarządzanie czasem pracy szkoły, unikając nakładania się terminów dla klas i nauczycieli.
+4.  **Wielopoziomowość**: Dzięki tabeli `Teacher_Subjects`, system elastycznie zarządza specjalizacjami kadry.
+
+---
+
+## 4. Historyjki Użytkownika (User Stories)
+
+| Rola | Potrzeba (Cel) | Powiązane Tabele |
+| :--- | :--- | :--- |
+| **Uczeń** | Chcę sprawdzić w jakiej sali i z jakim nauczycielem mam lekcję o danej godzinie. | `Schedules`, `Rooms`, `Teachers` |
+| **Nauczyciel** | Chcę wystawić ocenę uczniowi za konkretną lekcję i określić jej wagę. | `Grades`, `Students`, `Schedules` |
+| **Wychowawca** | Chcę zobaczyć listę wszystkich uczniów przypisanych do mojej klasy. | `Classes`, `Students` |
+| **Dyrektor** | Chcę sprawdzić, jakie przedmioty są przypisane do danego nauczyciela. | `Teachers`, `Teacher_Subjects`, `Subjects` |
+| **Administrator** | Chcę dodać nową salę lekcyjną do systemu, aby móc planować w niej zajęcia. | `Rooms` |
+
+---
+
+## 5. Kluczowe Relacje (Techniczne)
+
+* **One-to-Many (1:N)**: 
+    * `Classes` -> `Students` (Jedna klasa ma wielu uczniów).
+    * `Schedules` -> `Grades` (Z jednej lekcji może wynikać wiele ocen).
+* **Many-to-Many (M:N)**:
+    * `Teachers` <-> `Subjects` (poprzez `Teacher_Subjects`).
+    * `Students` <-> `Schedules` (poprzez `Attendance`).
+
+---
+
+### Uwagi do implementacji:
+* Wszystkie tabele posiadają klucze główne (PK) typu `int` dla zapewnienia wydajności indeksowania.
+* Dane kontaktowe (`email`, `phoneNumber`) są przechowywane jako `varchar` dla zachowania elastyczności formatowania.
 
 ```mermaid
 
