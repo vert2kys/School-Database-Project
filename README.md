@@ -64,11 +64,7 @@ System implementuje szereg reguł biznesowych zapewniających spójność danych
     * `Teachers` <-> `Subjects` (poprzez `Teacher_Subjects`).
     * `Students` <-> `Schedules` (poprzez `Attendance`).
 
----
 
-### Uwagi do implementacji:
-* Wszystkie tabele posiadają klucze główne (PK) typu `int` dla zapewnienia wydajności indeksowania.
-* Dane kontaktowe (`email`, `phoneNumber`) są przechowywane jako `varchar` dla zachowania elastyczności formatowania.
 
 ```mermaid
 
