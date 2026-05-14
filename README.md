@@ -87,6 +87,20 @@ erDiagram
     Schedules ||--o{ Attendance : "tracks"
     Students ||--o{ Attendance : "attends"
 
+    Teacher_Subjects {
+        int teacherId FK
+        int subjectId FK
+    }
+
+    Attendance {
+     int studentId FK
+        int lessonId FK
+}
+
+
+    Rooms {
+    int roomId PK
+}
     Classes {
         int classId PK
         varchar className
