@@ -148,12 +148,12 @@ erDiagram
     }
 
 ```
-#### Opis poszczególnych tabel
+# Opis poszczególnych tabel
 
 ---
 
-#### Tabela: Classes
-Przechowuje informacje o oddziałach szkolnych, w tym ich nazwę (np. "10-A") oraz poziom edukacji.
+# Tabela: Classes
+## Przechowuje informacje o oddziałach szkolnych, w tym ich nazwę (np. "10-A") oraz poziom edukacji.
 
 | Nazwa atrybutu | Typ | Opis/Uwagi |
 | :--- | :--- | :--- |
@@ -167,6 +167,175 @@ CREATE TABLE Classes (
     className VARCHAR(255),
     classLevel VARCHAR(255)
 );
+```
+---
+
+# Tabela: Subjects
+## Przechowuje listę przedmiotów nauczania (np. matematyka, biologia.
+```sql
+CREATE TABLE Subjects (
+    subjectId INT PRIMARY KEY,
+    subjectName VARCHAR(255)
+);
+```
+
+---
+
+# Tabela: Rooms
+## Zawiera identyfikatory fizycznych sal, w których odbywają się zajęcia.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **roomId** | INT | Klucz główny (PK), unikalny numer/identyfikator sali. |
+
+```sql
+CREATE TABLE Rooms (
+    roomId INT PRIMARY KEY
+);
+```
+
+---
+
+# Tabela: Teachers
+## Zawiera dane osobowe (imię, nazwisko) oraz informacje kontaktowe (e-mail, numer telefonu) nauczycieli.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **teacherId** | INT | Klucz główny (PK), unikalny identyfikator nauczyciela. |
+| **firstName** | VARCHAR(255) | Imię nauczyciela. |
+| **lastName** | VARCHAR(255) | Nazwisko nauczyciela. |
+| **email** | VARCHAR(255) | Służbowy adres e-mail. |
+| **phoneNumber** | VARCHAR(50) | Numer telefonu kontaktowego. |
+
+```sql
+CREATE TABLE Teachers (
+    teacherId INT PRIMARY KEY,
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
+    email VARCHAR(255),
+    phoneNumber VARCHAR(50)
+);
+```
+---
 
 
+# Tabela: Students
+## Przechowuje dane uczniów, w tym unikalny numer PESEL, adres e-mail oraz przypisanie do konkretnej klasy (klucz obcy classId).
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **studentId** | INT | Klucz główny (PK), unikalny identyfikator ucznia. |
+| **firstName** | VARCHAR(255) | Imię ucznia. |
+| **lastName** | VARCHAR(255) | Nazwisko ucznia. |
+| **pesel** | VARCHAR(11) | Unikalny numer PESEL (UNIQUE). |
+| **email** | VARCHAR(255) | Adres e-mail ucznia. |
+| **classId** | INT | Klucz obcy (FK), odniesienie do tabeli Classes. |
+
+```sql
+CREATE TABLE Students (
+    studentId INT PRIMARY KEY,
+    firstName VARCHAR(255),
+    lastName VARCHAR(255),
+    pesel VARCHAR(11) UNIQUE,
+    email VARCHAR(255),
+    classId INT,
+    FOREIGN KEY (classId) REFERENCES Classes(classId)
+);
+```
+
+---
+
+# Tabela: Teacher_Subjects
+## Tabela łącząca (relacyjna), która określa, jakich przedmiotów może uczyć dany nauczyciel.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **teacherId** | INT | Klucz obcy (FK), identyfikator nauczyciela. |
+| **subjectId** | INT | Klucz obcy (FK), identyfikator przedmiotu. |
+
+```sql
+CREATE TABLE Teacher_Subjects (
+    teacherId INT,
+    subjectId INT,
+    PRIMARY KEY (teacherId, subjectId),
+    FOREIGN KEY (teacherId) REFERENCES Teachers(teacherId),
+    FOREIGN KEY (subjectId) REFERENCES Subjects(subjectId)
+);
+```
+---
+
+
+# Tabela: Schedules
+## Główna tabela organizacyjna. Łączy konkretną lekcję z salą, klasą, przedmiotem, nauczycielem oraz dokładnym czasem rozpoczęcia i zakończenia.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **lessonId** | INT | Klucz główny (PK), identyfikator jednostki lekcyjnej. |
+| **roomId** | INT | Klucz obcy (FK), powiązanie z salą. |
+| **classId** | INT | Klucz obcy (FK), powiązanie z klasą. |
+| **subjectId** | INT | Klucz obcy (FK), powiązanie z przedmiotem. |
+| **teacherId** | INT | Klucz obcy (FK), powiązanie z nauczycielem. |
+| **startTime** | DATETIME | Data i godzina rozpoczęcia lekcji. |
+| **endTime** | DATETIME | Data i godzina zakończenia lekcji. |
+
+```sql
+CREATE TABLE Schedules (
+    lessonId INT PRIMARY KEY,
+    roomId INT,
+    classId INT,
+    subjectId INT,
+    teacherId INT,
+    startTime DATETIME,
+    endTime DATETIME,
+    FOREIGN KEY (roomId) REFERENCES Rooms(roomId),
+    FOREIGN KEY (classId) REFERENCES Classes(classId),
+    FOREIGN KEY (subjectId) REFERENCES Subjects(subjectId),
+    FOREIGN KEY (teacherId) REFERENCES Teachers(teacherId)
+);
+```
+
+---
+
+# Tabela: Grades
+## Przechowuje informacje o ocenach uzyskanych przez uczniów na konkretnych lekcjach, uwzględniając wartość oceny i jej wagę.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **gradeId** | INT | Klucz główny (PK), identyfikator oceny. |
+| **gradeValue** | DECIMAL(5,2) | Wartość oceny (np. 5.00). |
+| **weight** | INT | Waga oceny (wpływ na średnią). |
+| **studentId** | INT | Klucz obcy (FK), powiązanie z uczniem. |
+| **lessonId** | INT | Klucz obcy (FK), powiązanie z konkretną lekcją. |
+
+```sql
+CREATE TABLE Grades (
+    gradeId INT PRIMARY KEY,
+    gradeValue DECIMAL(5,2),
+    weight INT,
+    studentId INT,
+    lessonId INT,
+    FOREIGN KEY (studentId) REFERENCES Students(studentId),
+    FOREIGN KEY (lessonId) REFERENCES Schedules(lessonId)
+);
+```
+
+---
+
+# Tabela: Attendance
+## Tabela relacyjna rejestrująca, czy dany uczeń był obecny na konkretnej lekcji.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **studentId** | INT | Klucz obcy (FK), identyfikator ucznia. |
+| **lessonId** | INT | Klucz obcy (FK), identyfikator lekcji. |
+
+```sql
+CREATE TABLE Attendance (
+    studentId INT,
+    lessonId INT,
+    PRIMARY KEY (studentId, lessonId),
+    FOREIGN KEY (studentId) REFERENCES Students(studentId),
+    FOREIGN KEY (lessonId) REFERENCES Schedules(lessonId)
+);
+```
  
