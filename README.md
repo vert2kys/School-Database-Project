@@ -147,4 +147,26 @@ erDiagram
         datetime endTime
     }
 
+```
+#### Opis poszczególnych tabel
+
+---
+
+#### Tabela: Classes
+Przechowuje informacje o oddziałach szkolnych, w tym ich nazwę (np. "10-A") oraz poziom edukacji.
+
+| Nazwa atrybutu | Typ | Opis/Uwagi |
+| :--- | :--- | :--- |
+| **classId** | INT | Klucz główny (PK), unikalny identyfikator klasy. |
+| **className** | VARCHAR(255) | Nazwa oddziału (np. "10-A"). |
+| **classLevel** | VARCHAR(255) | Poziom edukacji przypisany do klasy. |
+
+```sql
+CREATE TABLE Classes (
+    classId INT PRIMARY KEY,
+    className VARCHAR(255),
+    classLevel VARCHAR(255)
+);
+
+
  
