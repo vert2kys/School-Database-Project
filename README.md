@@ -33,7 +33,7 @@
 
 ---
 
-## Wymagania i Integralność Systemu:
+# 2. Wymagania i Integralność Systemu:
 
 System implementuje szereg reguł biznesowych zapewniających spójność danych:
 
