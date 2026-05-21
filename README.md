@@ -90,13 +90,15 @@ erDiagram
     Teacher_Subjects {
         int teacherId FK
         int subjectId FK
-        int teacher_Subjects
+        int teacherid PK
+        int subjectid PK 
     }
 
     Attendance {
      int studentId FK
         int lessonId FK
-        int attendance PK
+        int lessonId PK
+        int studentId PK
 }
 
 
