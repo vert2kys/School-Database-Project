@@ -342,7 +342,7 @@ CREATE TABLE Attendance (
 
 ---
 # Opis widoków
-# 1. Plan zajęć dla uczniów (Student Schedule)
+# 1. Widok: Student Schedule
 ## Widok przedstawia aktualny plan zajęć dla uczniów. Łączy dane o lekcjach, poziomach klas, przedmiotach oraz nauczycielach, wyświetlając pełną i czytelną informację o czasie, miejscu (ID sali) i osobie prowadzącej lekcję.
 
 ```sql
@@ -363,7 +363,7 @@ JOIN Subjects sub ON s.subjectId = sub.subjectId
 JOIN Teachers t ON s.teacherId = t.teacherId;
 ```
 ---
-# 2. Średnie ważone ocen klas (Weighted Class Performance)
+# 2. Widok: Weighted Class Performance
 ## Widok oblicza i wyświetla średnią ważoną ocen dla każdej klasy z poszczególnych przedmiotów na podstawie wartości oceny oraz jej wagi (weight). Pozwala na bieżąco monitorować wyniki w nauce z uwzględnieniem ważności zadań.
 
 ```sql
@@ -381,7 +381,7 @@ JOIN Subjects sub ON s.subjectId = sub.subjectId
 GROUP BY c.classLevel, c.className, sub.subjectName;
 ```
 ---
-# 3. Przypisania nauczycieli do przedmiotów (Teacher Assignments)
+# 3. Widok: Teacher Assignments
 ## Widok przedstawia lista wszystkich nauczycieli oraz przypisanych do nich przedmiotów na podstawie tabeli łączącej Teacher_Subjects z wykorzystaniem kluczy kompozytowych. Ułatwia kontrolę przydziału obowiązków pedagogicznych.
 
 ```sql
@@ -398,7 +398,7 @@ JOIN Subjects sub ON ts.subjectId = sub.subjectId;
 ```
 
 ---
-# 4. Obciążenie sal lekcyjnych (Classroom Utilization)
+# 4. Widok: Classroom Utilization
 ## Widok zlicza łączną liczbę zaplanowanych lekcji dla każdej sali na podstawie jej ID (roomId). Pomaga administratorom w analizie wykorzystania oraz optymalizacji obciążenia szkolnej infrastruktury.
 
 ```sql
@@ -411,7 +411,7 @@ GROUP BY roomId;
 ```
 
 ---
-# 5. Listy uczniów w klasach (Student Roster per Class)
+# 5. Widok: Student Roster per Class
 ## Widok generuje przejrzystą listę uczniów przypisanych do konkretnych klas, uwzględniając poziom klasy (classLevel) oraz adres e-mail ucznia. Jest to kluczowe narzędzie ułatwiające sprawne zarządzanie grupami.
 
 ```sql
@@ -428,7 +428,7 @@ JOIN Classes c ON s.classId = c.classId;
 ```
 
 ---
-# 6. Szczegółowy wykaz ocen (Detailed Grade Sheet)
+# 6. Widok: Detailed Grade Sheet
 ## Widok integruje dane o ocenach, pokazując imię i nazwisko ucznia, nazwę przedmiotu, wartość oceny, jej wagę oraz nazwisko nauczyciela, który ją wystawił (poprzez powiązanie z harmonogramem). Zapewnia pełną transparentność.
 
 ```sql
@@ -446,4 +446,22 @@ JOIN Students st ON g.studentId = st.studentId
 JOIN Schedules s ON g.lessonId = s.lessonId
 JOIN Subjects sub ON s.subjectId = sub.subjectId
 JOIN Teachers t ON s.teacherId = t.teacherId;
+```
+
+---
+# 7. Widok: Student Attendance
+## Widok zestawia dane o obecności uczniów na konkretnych lekcjach w harmonogramie. Pokazuje pełne dane ucznia, nazwę przedmiotu oraz dokładny czas rozpoczęcia zajęć, co umożliwia sprawną kontrolę frekwencji.
+
+```sql
+CREATE VIEW v_StudentAttendance AS
+SELECT 
+    a.studentId,
+    st.firstName,
+    st.lastName,
+    sub.subjectName,
+    s.startTime
+FROM Attendance a
+JOIN Students st ON a.studentId = st.studentId
+JOIN Schedules s ON a.lessonId = s.lessonId
+JOIN Subjects sub ON s.subjectId = sub.subjectId;
 ```
