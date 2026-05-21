@@ -6,14 +6,15 @@
 
 ---
 
-## 1. Opis Systemu
+# 1. Zakres i krótki opis systemu
+
 **Lumina** to zintegrowany system bazy danych służący do automatyzacji procesów administracyjnych i dydaktycznych. System opiera się na relacyjnym modelu danych, który łączy ewidencję osób (uczniów i nauczycieli) z logistyką zajęć (plan lekcji, sale) oraz wynikami nauczania.
 
 ---
 
-## 2. Architektura Danych (Struktura Tabel)
+## Architektura Danych (Struktura Tabel):
 
-Na podstawie diagramu ERD, system składa się z następujących kluczowych komponentów:
+### Na podstawie diagramu ERD, system składa się z następujących kluczowych komponentów:
 
 ### 👤 Zarządzanie Osobami
 * **Students**: Przechowuje dane uczniów. Kluczowym elementem jest unikalny numer **PESEL** oraz przypisanie do konkretnej klasy (`classId`).
@@ -32,7 +33,7 @@ Na podstawie diagramu ERD, system składa się z następujących kluczowych komp
 
 ---
 
-## 3. Wymagania i Integralność Systemu
+# 3. Wymagania i Integralność Systemu
 
 System implementuje szereg reguł biznesowych zapewniających spójność danych:
 
@@ -43,7 +44,7 @@ System implementuje szereg reguł biznesowych zapewniających spójność danych
 
 ---
 
-## 4. Historyjki Użytkownika (User Stories)
+## Historyjki Użytkownika (User Stories):
 
 | Rola | Potrzeba (Cel) | Powiązane Tabele |
 | :--- | :--- | :--- |
@@ -55,7 +56,7 @@ System implementuje szereg reguł biznesowych zapewniających spójność danych
 
 ---
 
-## 5. Kluczowe Relacje (Techniczne)
+## Kluczowe Relacje (Techniczne):
 
 * **One-to-Many (1:N)**: 
     * `Classes` -> `Students` (Jedna klasa ma wielu uczniów).
@@ -64,6 +65,7 @@ System implementuje szereg reguł biznesowych zapewniających spójność danych
     * `Teachers` <-> `Subjects` (poprzez `Teacher_Subjects`).
     * `Students` <-> `Schedules` (poprzez `Attendance`).
 
+# 3. Projekt bazy danych
 
 
 ```mermaid
@@ -149,6 +151,8 @@ erDiagram
     }
 
 ```
+
+# 4. Implementacja
 # Opis poszczególnych tabel
 
 ---
@@ -341,8 +345,9 @@ CREATE TABLE Attendance (
 ```
 
 ---
+
 # Opis widoków
-# 1. Widok: Student Schedule
+# Widok: Student Schedule
 ## Widok przedstawia aktualny plan zajęć dla uczniów. Łączy dane o lekcjach, poziomach klas, przedmiotach oraz nauczycielach, wyświetlając pełną i czytelną informację o czasie, miejscu (ID sali) i osobie prowadzącej lekcję.
 
 ```sql
@@ -363,7 +368,7 @@ JOIN Subjects sub ON s.subjectId = sub.subjectId
 JOIN Teachers t ON s.teacherId = t.teacherId;
 ```
 ---
-# 2. Widok: Weighted Class Performance
+# Widok: Weighted Class Performance
 ## Widok oblicza i wyświetla średnią ważoną ocen dla każdej klasy z poszczególnych przedmiotów na podstawie wartości oceny oraz jej wagi (weight). Pozwala na bieżąco monitorować wyniki w nauce z uwzględnieniem ważności zadań.
 
 ```sql
@@ -381,7 +386,7 @@ JOIN Subjects sub ON s.subjectId = sub.subjectId
 GROUP BY c.classLevel, c.className, sub.subjectName;
 ```
 ---
-# 3. Widok: Teacher Assignments
+# Widok: Teacher Assignments
 ## Widok przedstawia lista wszystkich nauczycieli oraz przypisanych do nich przedmiotów na podstawie tabeli łączącej Teacher_Subjects z wykorzystaniem kluczy kompozytowych. Ułatwia kontrolę przydziału obowiązków pedagogicznych.
 
 ```sql
@@ -398,7 +403,7 @@ JOIN Subjects sub ON ts.subjectId = sub.subjectId;
 ```
 
 ---
-# 4. Widok: Classroom Utilization
+# Widok: Classroom Utilization
 ## Widok zlicza łączną liczbę zaplanowanych lekcji dla każdej sali na podstawie jej ID (roomId). Pomaga administratorom w analizie wykorzystania oraz optymalizacji obciążenia szkolnej infrastruktury.
 
 ```sql
@@ -411,7 +416,7 @@ GROUP BY roomId;
 ```
 
 ---
-# 5. Widok: Student Roster per Class
+# Widok: Student Roster per Class
 ## Widok generuje przejrzystą listę uczniów przypisanych do konkretnych klas, uwzględniając poziom klasy (classLevel) oraz adres e-mail ucznia. Jest to kluczowe narzędzie ułatwiające sprawne zarządzanie grupami.
 
 ```sql
@@ -428,7 +433,7 @@ JOIN Classes c ON s.classId = c.classId;
 ```
 
 ---
-# 6. Widok: Detailed Grade Sheet
+# Widok: Detailed Grade Sheet
 ## Widok integruje dane o ocenach, pokazując imię i nazwisko ucznia, nazwę przedmiotu, wartość oceny, jej wagę oraz nazwisko nauczyciela, który ją wystawił (poprzez powiązanie z harmonogramem). Zapewnia pełną transparentność.
 
 ```sql
@@ -449,7 +454,7 @@ JOIN Teachers t ON s.teacherId = t.teacherId;
 ```
 
 ---
-# 7. Widok: Student Attendance
+# Widok: Student Attendance
 ## Widok zestawia dane o obecności uczniów na konkretnych lekcjach w harmonogramie. Pokazuje pełne dane ucznia, nazwę przedmiotu oraz dokładny czas rozpoczęcia zajęć, co umożliwia sprawną kontrolę frekwencji.
 
 ```sql
