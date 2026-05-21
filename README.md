@@ -339,4 +339,111 @@ CREATE TABLE Attendance (
     FOREIGN KEY (lessonId) REFERENCES Schedules(lessonId)
 );
 ```
- 
+
+---
+# Opis widoków
+# 1. Plan zajęć dla uczniów (Student Schedule)
+## Widok przedstawia aktualny plan zajęć dla uczniów. Łączy dane o lekcjach, poziomach klas, przedmiotach oraz nauczycielach, wyświetlając pełną i czytelną informację o czasie, miejscu (ID sali) i osobie prowadzącej lekcję.
+
+```sql
+CREATE VIEW v_StudentSchedule AS
+SELECT 
+    s.lessonId,
+    c.classLevel,
+    c.className,
+    sub.subjectName,
+    t.firstName AS teacherFirstName,
+    t.lastName AS teacherLastName,
+    s.roomId, 
+    s.startTime,
+    s.endTime
+FROM Schedules s
+JOIN Classes c ON s.classId = c.classId
+JOIN Subjects sub ON s.subjectId = sub.subjectId
+JOIN Teachers t ON s.teacherId = t.teacherId;
+```
+---
+# 2. Średnie ważone ocen klas (Weighted Class Performance)
+## Widok oblicza i wyświetla średnią ważoną ocen dla każdej klasy z poszczególnych przedmiotów na podstawie wartości oceny oraz jej wagi (weight). Pozwala na bieżąco monitorować wyniki w nauce z uwzględnieniem ważności zadań.
+
+```sql
+CREATE VIEW v_ClassAverageGrades AS
+SELECT 
+    c.classLevel,
+    c.className,
+    sub.subjectName,
+    ROUND(SUM(g.gradeValue * g.weight) / SUM(g.weight), 2) AS weightedAverageGrade
+FROM Grades g
+JOIN Students st ON g.studentId = st.studentId
+JOIN Classes c ON st.classId = c.classId
+JOIN Schedules s ON g.lessonId = s.lessonId
+JOIN Subjects sub ON s.subjectId = sub.subjectId
+GROUP BY c.classLevel, c.className, sub.subjectName;
+```
+---
+# 3. Przypisania nauczycieli do przedmiotów (Teacher Assignments)
+## Widok przedstawia lista wszystkich nauczycieli oraz przypisanych do nich przedmiotów na podstawie tabeli łączącej Teacher_Subjects z wykorzystaniem kluczy kompozytowych. Ułatwia kontrolę przydziału obowiązków pedagogicznych.
+
+```sql
+CREATE VIEW v_TeacherAssignments AS
+SELECT 
+    t.teacherId,
+    t.firstName,
+    t.lastName,
+    t.email,
+    sub.subjectName
+FROM Teacher_Subjects ts
+JOIN Teachers t ON ts.teacherId = t.teacherId
+JOIN Subjects sub ON ts.subjectId = sub.subjectId;
+```
+
+---
+# 4. Obciążenie sal lekcyjnych (Classroom Utilization)
+## Widok zlicza łączną liczbę zaplanowanych lekcji dla każdej sali na podstawie jej ID (roomId). Pomaga administratorom w analizie wykorzystania oraz optymalizacji obciążenia szkolnej infrastruktury.
+
+```sql
+CREATE VIEW v_ClassroomUtilization AS
+SELECT 
+    roomId,
+    COUNT(lessonId) AS totalLessonsScheduled
+FROM Schedules
+GROUP BY roomId;
+```
+
+---
+# 5. Listy uczniów w klasach (Student Roster per Class)
+## Widok generuje przejrzystą listę uczniów przypisanych do konkretnych klas, uwzględniając poziom klasy (classLevel) oraz adres e-mail ucznia. Jest to kluczowe narzędzie ułatwiające sprawne zarządzanie grupami.
+
+```sql
+CREATE VIEW v_StudentClassList AS
+SELECT 
+    c.classLevel,
+    c.className,
+    s.studentId,
+    s.firstName,
+    s.lastName,
+    s.email
+FROM Students s
+JOIN Classes c ON s.classId = c.classId;
+```
+
+---
+# 6. Szczegółowy wykaz ocen (Detailed Grade Sheet)
+## Widok integruje dane o ocenach, pokazując imię i nazwisko ucznia, nazwę przedmiotu, wartość oceny, jej wagę oraz nazwisko nauczyciela, który ją wystawił (poprzez powiązanie z harmonogramem). Zapewnia pełną transparentność.
+
+```sql
+CREATE VIEW v_DetailedGrades AS
+SELECT 
+    g.gradeId,
+    st.firstName AS studentFirstName,
+    st.lastName AS studentLastName,
+    sub.subjectName,
+    g.gradeValue,
+    g.weight,
+    t.lastName AS teacherLastName
+FROM Grades g
+JOIN Students st ON g.studentId = st.studentId
+JOIN Schedules s ON g.lessonId = s.lessonId
+JOIN Subjects sub ON s.subjectId = sub.subjectId
+JOIN Teachers t ON s.teacherId = t.teacherId;
+```
