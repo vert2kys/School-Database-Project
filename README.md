@@ -88,17 +88,14 @@ erDiagram
     Students ||--o{ Attendance : "attends"
 
     Teacher_Subjects {
-        int teacherId FK
-        int subjectId FK
-        int teacherid PK
-        int subjectid PK 
+        int teacherId PK "FK"
+        int subjectId PK "FK"
+      
     }
 
     Attendance {
-     int studentId FK
-        int lessonId FK
-        int lessonId PK
-        int studentId PK
+     int studentId PK "FK"
+        int lessonId PK "FK"
 }
 
 
@@ -125,7 +122,7 @@ erDiagram
         varchar firstName
         varchar lastName
         varchar email
-        varchar phoneNumber
+        varchar(50) phoneNumber
     }
 
     Subjects {
