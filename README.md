@@ -746,3 +746,141 @@ BEGIN
 END;
 GO
 ```
+---
+# Opis Triggerów
+
+### 1. Walidacja zakresu ocen (tr_ValidateGradeRange)
+## Trigger automatycznie sprawdza poprawność wprowadzanych lub modyfikowanych ocen w tabeli Grades. Jeśli wartość oceny wykracza poza dozwolony przedział od 1.0 do 6.0, operacja zostaje cofnięta i wyświetlany jest błąd.
+
+```sql
+CREATE TRIGGER tr_ValidateGradeRange
+ON Grades
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (SELECT 1 FROM inserted WHERE gradeValue < 1.0 OR gradeValue > 6.0)
+    BEGIN
+        RAISERROR('Blad: Ocena musi miescic sie w przedziale od 1.0 do 6.0!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
+
+---
+### 2. Zapobieganie konfliktom sal lekcyjnych (tr_PreventRoomConflict)
+## Trigger chroni infrastrukturę szkolną przed błędami w harmonogramie. Blokuje możliwość przypisania dwóch różnych lekcji do tej samej sali (roomId) w pokrywających się przedziałach czasowych.
+
+```sql
+CREATE TRIGGER tr_PreventRoomConflict
+ON Schedules
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM Schedules s
+        JOIN inserted i ON s.roomId = i.roomId AND s.lessonId <> i.lessonId
+        WHERE (i.startTime < s.endTime AND i.endTime > s.startTime)
+    )
+    BEGIN
+        RAISERROR('Blad: Ta sala lekcyjna jest juz zajeta w wybranym czasie!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
+
+---
+### 3. Zapobieganie konfliktom w grafiku nauczyciela (tr_PreventTeacherConflict)
+## Trigger zabezpiecza plan zajęć przed nałożeniem się godzin pracy pedagoga. Nie pozwala na przypisanie nauczycielowi dwóch różnych lekcji w tym samym czasie.
+
+```sql
+CREATE TRIGGER tr_PreventTeacherConflict
+ON Schedules
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM Schedules s
+        JOIN inserted i ON s.teacherId = i.teacherId AND s.lessonId <> i.lessonId
+        WHERE (i.startTime < s.endTime AND i.endTime > s.startTime)
+    )
+    BEGIN
+        RAISERROR('Blad: Nauczyciel prowadzi juz inna lekcje w tym samym czasie!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
+
+---
+### 4. Weryfikacja kompetencji nauczyciela (tr_ValidateTeacherSubject)
+## Trigger sprawdza uprawnienia nauczyciela przed dodaniem lekcji do harmonogramu. Blokuje zaplanowanie zajęć, jeśli nauczyciel nie ma przypisanego danego przedmiotu w tabeli kompetencji.
+
+```sql
+CREATE TRIGGER tr_ValidateTeacherSubject
+ON Schedules
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM inserted i
+        LEFT JOIN Teacher_Subjects ts ON i.teacherId = ts.teacherId AND i.subjectId = ts.subjectId
+        WHERE ts.teacherId IS NULL
+    )
+    BEGIN
+        RAISERROR('Blad: Nauczyciel nie ma uprawnien do nauczania tego przedmiotu!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
+
+---
+### 5. Limit licznika uczniów w klasie (tr_LimitClassSize)
+## Trigger kontroluje liczebność klas podczas dopisywania nowych studentów. Automatycznie cofa operację dodania ucznia, jeśli wielkość grupy przekroczy maksymalny limit 30 osób.
+
+```sql
+CREATE TRIGGER tr_LimitClassSize
+ON Students
+AFTER INSERT
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM inserted i
+        WHERE (SELECT COUNT(*) FROM Students WHERE classId = i.classId) > 30
+    )
+    BEGIN
+        RAISERROR('Blad: Klasa osiagnela maksymalny limit 30 uczniow!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
+
+---
+### 6. Blokada planowania lekcji w weekendy (tr_BlockWeekendSchedules)
+## Trigger dba o poprawność kalendarza szkolnego. Analizuje datę rozpoczęcia lekcji i uniemożliwia zapisanie jakichkolwiek zajęć w dni wolne od pracy (soboty i niedziele).
+
+```sql
+CREATE TRIGGER tr_BlockWeekendSchedules
+ON Schedules
+AFTER INSERT, UPDATE
+AS
+BEGIN
+    IF EXISTS (
+        SELECT 1 
+        FROM inserted i
+        WHERE (DATEPART(dw, i.startTime) + @@DATEFIRST - 1) % 7 IN (0, 6)
+    )
+    BEGIN
+        RAISERROR('Blad: Nie mozna planowac lekcji w weekendy (soboty i niedziele)!', 16, 1);
+        ROLLBACK TRANSACTION;
+    END;
+END;
+GO
+```
