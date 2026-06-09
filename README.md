@@ -347,6 +347,7 @@ CREATE TABLE Attendance (
 ---
 
 # Opis widoków
+
 # Widok: Student Schedule
 ## Widok przedstawia aktualny plan zajęć dla uczniów. Łączy dane o lekcjach, poziomach klas, przedmiotach oraz nauczycielach, wyświetlając pełną i czytelną informację o czasie, miejscu (ID sali) i osobie prowadzącej lekcję.
 
@@ -469,4 +470,279 @@ FROM Attendance a
 JOIN Students st ON a.studentId = st.studentId
 JOIN Schedules s ON a.lessonId = s.lessonId
 JOIN Subjects sub ON s.subjectId = sub.subjectId;
+```
+---
+# Opis Procedur
+
+# 1. Procedura: Dodawanie nowej oceny (AddGrade)
+## Procedura dodaje nową ocenę do tabeli Grades na podstawie przekazanych parametrów @studentId, @lessonId, @gradeValue oraz @weight. Automatycznie wprowadza dane do bazy, ułatwiając pracę nauczycielom.
+
+```sql
+CREATE PROCEDURE AddGrade
+    @studentId INT,
+    @lessonId INT,
+    @gradeValue DECIMAL(3,2),
+    @weight INT
+AS
+BEGIN
+    INSERT INTO Grades (studentId, lessonId, gradeValue, weight)
+    VALUES (@studentId, @lessonId, @gradeValue, @weight);
+END;
+GO
+```
+---
+### 2. Aktualizacja istniejącej oceny (UpdateGrade)
+# Procedura: Aktualizacja istniejącej oceny (UpdateGrade)
+## Procedura pozwala na bezpieczną aktualizację wartości istniejącej oceny na podstawie jej identyfikatora @gradeId. Nadpisuje starą wartość nową, przekazaną w parametrze @newGradeValue.
+
+```sql
+CREATE PROCEDURE UpdateGrade
+    @gradeId INT,
+    @newGradeValue DECIMAL(3,2)
+AS
+BEGIN
+    UPDATE Grades 
+    SET gradeValue = @newGradeValue 
+    WHERE gradeId = @gradeId;
+END;
+GO
+```
+
+---
+### 3. Rejestracja obecności (LogAttendance)
+# Procedura: Rejestracja obecności (LogAttendance)
+## Procedura służy do oznaczania obecności ucznia na konkretnych zajęciach. Zapisuje powiązanie między studentem (@studentId) a lekcją (@lessonId) w tabeli Attendance za pomocą kluczy kompozytowych.
+
+```sql
+CREATE PROCEDURE LogAttendance
+    @studentId INT,
+    @lessonId INT
+AS
+BEGIN
+    INSERT INTO Attendance (studentId, lessonId)
+    VALUES (@studentId, @lessonId);
+END;
+GO
+```
+
+---
+### 4. Przypisanie nauczyciela do przedmiotu (AssignTeacherToSubject)
+# Procedura: Przypisanie nauczyciela do przedmiotu (AssignTeacherToSubject)
+## Procedura dodaje nowy przydział nauczyciela (@teacherId) do przedmiotu (@subjectId) w tabeli łączącej Teacher_Subjects. Ułatwia zarządzanie kadrą i rocznym arkuszem organizacyjnym szkoły.
+
+```sql
+CREATE PROCEDURE AssignTeacherToSubject
+    @teacherId INT,
+    @subjectId INT
+AS
+BEGIN
+    INSERT INTO Teacher_Subjects (teacherId, subjectId)
+    VALUES (@teacherId, @subjectId);
+END;
+GO
+```
+
+---
+### 5. Plan zajęć dla konkretnego nauczyciela (GetTeacherSchedule)
+# Procedura: Plan zajęć dla konkretnego nauczyciela (GetTeacherSchedule)
+## Procedura pobiera listę wszystkich zaplanowanych lekcji prowadzonych przez wskazanego w parametrze @teacherId nauczyciela. Znacząco przyspiesza generowanie indywidualnego planu pracy dla kadry pedagogicznej.
+
+```sql
+CREATE PROCEDURE GetTeacherSchedule
+    @teacherId INT
+AS
+BEGIN
+    SELECT s.lessonId, sub.subjectName, s.startTime, s.endTime, s.roomId
+    FROM Schedules s
+    JOIN Subjects sub ON s.subjectId = sub.subjectId
+    WHERE s.teacherId = @teacherId;
+END;
+GO
+```
+
+---
+### 6. Obliczanie średniej ważonej ucznia (GetStudentAverage)
+# Procedura: Obliczanie średniej ważonej ucznia (GetStudentAverage)
+## Procedura oblicza i zwraca średnią ważoną ocen dla konkretnego ucznia na podstawie parametru @studentId. Wynik uwzględnia wartości ocen oraz ich wagi (weight) i jest zaokrąglany do dwóch miejsc po przecinku.
+
+```
+sql
+CREATE PROCEDURE GetStudentAverage
+    @studentId INT
+AS
+BEGIN
+    SELECT 
+        ROUND(SUM(gradeValue * weight) / CAST(SUM(weight) AS DECIMAL(5,2)), 2) AS studentAverage
+    FROM Grades
+    WHERE studentId = @studentId;
+END;
+GO
+```
+---
+# Opis Funkcji 
+# 1. Funkcja: Średnia ważona ucznia z danego przedmiotu (fn_GetStudentSubjectAverage)
+## Funkcja oblicza średnią ważoną ocen konkretnego ucznia z wybranego przedmiotu. Jest to kluczowe uzupełnienie systemu oceniania.
+
+```sql
+CREATE FUNCTION fn_GetStudentSubjectAverage
+(
+    @studentId INT,
+    @subjectId INT
+)
+RETURNS DECIMAL(3,2)
+AS
+BEGIN
+    DECLARE @Average DECIMAL(3,2);
+ 
+    SELECT @Average = ROUND(SUM(g.gradeValue * g.weight) / CAST(SUM(g.weight) AS DECIMAL(5,2)), 2)
+    FROM Grades g
+    JOIN Schedules s ON g.lessonId = s.lessonId
+    WHERE g.studentId = @studentId AND s.subjectId = @subjectId;
+ 
+    RETURN @Average;
+END;
+GO
+```
+
+---
+### 2. Procentowa frekwencja ucznia (Scalar Function)
+# Funkcja: Procentowa frekwencja ucznia (fn_GetStudentAttendanceRate)
+## Funkcja oblicza stosunek obecności ucznia do wszystkich zaplanowanych lekcji dla jego klasy. Zwraca wynik w procentach (np. 85.50).
+
+```sql
+CREATE FUNCTION fn_GetStudentAttendanceRate
+(
+    @studentId INT
+)
+RETURNS DECIMAL(5,2)
+AS
+BEGIN
+    DECLARE @Attended INT;
+    DECLARE @TotalLessons INT;
+    DECLARE @Rate DECIMAL(5,2);
+ 
+    -- Liczba lekcji, na których uczeń był obecny
+    SELECT @Attended = COUNT(*) 
+    FROM Attendance 
+    WHERE studentId = @studentId;
+ 
+    -- Wszystkie lekcje zaplanowane dla klasy, do której chodzi uczeń
+    SELECT @TotalLessons = COUNT(s.lessonId)
+    FROM Schedules s
+    JOIN Students st ON s.classId = st.classId
+    WHERE st.studentId = @studentId;
+ 
+    -- Zapobieganie dzieleniu przez zero
+    IF @TotalLessons = 0
+        SET @Rate = 0.00;
+    ELSE
+        SET @Rate = ROUND((CAST(@Attended AS DECIMAL(5,2)) / @TotalLessons) * 100, 2);
+ 
+    RETURN @Rate;
+END;
+GO
+```
+
+---
+### 3. Słowna interpretacja oceny (Scalar Function)
+# Funkcja: Słowna interpretacja oceny (fn_GetGradeDescription)
+## Funkcja konwertuje numeryczną wartość oceny na jej polski odpowiednik słowny (np. 5.0 -> "bardzo dobry"). Idealne do świadectw i raportów.
+
+```sql
+CREATE FUNCTION fn_GetGradeDescription
+(
+    @gradeValue DECIMAL(3,2)
+)
+RETURNS VARCHAR(50)
+AS
+BEGIN
+    DECLARE @Description VARCHAR(50);
+ 
+    SET @Description = CASE 
+        WHEN @gradeValue >= 5.50 THEN 'celujący'
+        WHEN @gradeValue >= 4.50 AND @gradeValue < 5.50 THEN 'bardzo dobry'
+        WHEN @gradeValue >= 3.50 AND @gradeValue < 4.50 THEN 'dobry'
+        WHEN @gradeValue >= 2.50 AND @gradeValue < 3.50 THEN 'dostateczny'
+        WHEN @gradeValue >= 1.50 AND @gradeValue < 2.50 THEN 'dopuszczający'
+        ELSE 'niedostateczny'
+    END;
+ 
+    RETURN @Description;
+END;
+GO
+```
+
+---
+### 4. Liczba uczniów w klasie (Scalar Function)
+# Funkcja: Liczba uczniów w klasie (fn_GetClassStudentCount)
+## Prosta, ale bardzo wydajna funkcja zwracająca łączną liczbę uczniów przypisanych do danej klasy na podstawie jej ID.
+
+```sql
+CREATE FUNCTION fn_GetClassStudentCount
+(
+    @classId INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @StudentCount INT;
+ 
+    SELECT @StudentCount = COUNT(*) 
+    FROM Students 
+    WHERE classId = @classId;
+ 
+    RETURN @StudentCount;
+END;
+GO
+```
+
+---
+### 5. Wykaz ocen ucznia jako tabela (Inline Table-Valued Function)
+# Funkcja: Wykaz ocen ucznia jako tabela (fn_GetStudentGradesTable)
+## Funkcja tabelaryczna, która zwraca kompletną listę ocen konkretnego ucznia wraz z nazwami przedmiotów. Wykładowcy uwielbiają funkcje tabelaryczne, ponieważ działają szybciej niż standardowe widoki z filtrem WHERE.
+
+```sql
+CREATE FUNCTION fn_GetStudentGradesTable
+(
+    @studentId INT
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT 
+        sub.subjectName,
+        g.gradeValue,
+        g.weight,
+        dbo.fn_GetGradeDescription(g.gradeValue) AS gradeWord -- Użycie funkcji w funkcji!
+    FROM Grades g
+    JOIN Schedules s ON g.lessonId = s.lessonId
+    JOIN Subjects sub ON s.subjectId = sub.subjectId
+    WHERE g.studentId = @studentId
+);
+GO
+```
+
+---
+### 6. Łączna liczba godzin nauczyciela (Scalar Function)
+# Funkcja: Łączna liczba godzin nauczyciela (fn_GetTeacherLessonCount)
+## Funkcja zlicza, ile łącznie lekcji ma zaplanowanych w grafiku dany nauczyciel. Przydatne dla dyrekcji do kontroli pensum i nadgodzin.
+
+```sql
+CREATE FUNCTION fn_GetTeacherLessonCount
+(
+    @teacherId INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @LessonCount INT;
+ 
+    SELECT @LessonCount = COUNT(*) 
+    FROM Schedules 
+    WHERE teacherId = @teacherId;
+ 
+    RETURN @LessonCount;
+END;
+GO
 ```
