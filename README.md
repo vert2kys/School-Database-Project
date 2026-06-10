@@ -1,7 +1,7 @@
 # 🏫 System Zarządzania Szkołą "Lumina"
 
 **Autorzy:** Bohdan Kliukovskyi, Bohdan Krasovskyi  
-**Data projektu:** 2026-05-14  
+**Data projektu:** 2026-06-09  
 **Status:** Dokumentacja Techniczna (Zadanie 1,2,3)
 
 ---
