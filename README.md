@@ -2,7 +2,7 @@
 
 **Autorzy:** Bohdan Kliukovskyi, Bohdan Krasovskyi  
 **Data projektu:** 2026-06-09  
-**Status:** Dokumentacja Techniczna (Zadanie 1,2,3)
+**Status:** Dokumentacja Techniczna (Zadanie 1,2,3,4)
 
 ---
 
